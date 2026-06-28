@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
 from typing import List, Optional
+
+from app.core.exceptions import Forbidden, SessionNotFoundError
 from app.domain.models import Session
 from app.domain.repositories.session_repository import ISessionRepository
-from app.core.exceptions import SessionNotFoundError, Forbidden
 
 
 class SessionService:
@@ -66,16 +67,13 @@ class SessionService:
             raise SessionNotFoundError("Session not found.")
 
         if session.user_id != user_id:
-            raise PermissionDeniedError("Cannot terminate another user's session.")
+            raise Forbidden("Cannot terminate another user's session.")
 
         session.revoked = True
         self.session_repo.update(session)
 
         # Revoke associated refresh token family
         # We trigger cascade invalidation of refresh tokens by revoking the token family
-        from app.infrastructure.repositories.sqlalchemy_user import (
-            SQLAlchemyUserRepository,
-        )
 
         # To keep DI clean, we let session service revoke the family on repository
         # (This is handled by AuthService or TokenService cascade, but revoking the family here is safe)

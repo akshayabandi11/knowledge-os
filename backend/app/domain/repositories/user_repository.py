@@ -1,7 +1,8 @@
 import abc
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
-from app.domain.models import User, UserSettings, RefreshToken
+
+from app.domain.models import RefreshToken, User, UserSettings
 from app.domain.repositories.base import IRepository
 
 

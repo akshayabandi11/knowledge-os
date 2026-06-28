@@ -1,8 +1,8 @@
 import json
 import logging
 import sys
-from typing import Any
 from contextvars import ContextVar
+from typing import Any
 
 # Context variables for logging correlation
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")

@@ -1,20 +1,20 @@
 import time
 import uuid
-from fastapi import FastAPI, Depends, Request
+
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from sqlalchemy import text
-
-from app.core.config import settings
-from app.core.logging import setup_logging, logger, request_id_var, user_id_var
-from app.core.exceptions import DomainError
-from app.infrastructure.db.session import get_db
+from sqlalchemy.orm import Session
 
 # Import Routers
 from app.api.v1.auth import router as auth_router
-from app.api.v1.sessions import router as sessions_router
 from app.api.v1.chat import router as chat_router
+from app.api.v1.sessions import router as sessions_router
+from app.core.config import settings
+from app.core.exceptions import DomainError
+from app.core.logging import logger, request_id_var, setup_logging, user_id_var
+from app.infrastructure.db.session import get_db
 
 # Initialize Structured Logger
 setup_logging(settings.ENVIRONMENT)

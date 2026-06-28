@@ -1,5 +1,7 @@
 import re
+
 import bcrypt
+
 from app.core.exceptions import WeakPassword
 
 

@@ -1,17 +1,19 @@
 from typing import List, Optional, Tuple
 from uuid import UUID
+
+from sqlalchemy import and_, func, select, text
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func, and_, text
-from app.domain.models import Document, DocumentChunk, Summary, Flashcard, Quiz
+
+from app.domain.models import Document, DocumentChunk, Flashcard, Quiz, Summary
 from app.domain.repositories.document_repository import IDocumentRepository
 from app.infrastructure.db.models import (
-    DocumentModel,
+    CollectionModel,
     DocumentChunkModel,
-    SummaryModel,
+    DocumentModel,
     FlashcardModel,
     QuizModel,
     QuizQuestionModel,
-    CollectionModel,
+    SummaryModel,
 )
 
 

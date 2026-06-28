@@ -1,11 +1,12 @@
 import uuid
 from typing import List
-from fastapi import APIRouter, Depends, status, Response
 
+from fastapi import APIRouter, Depends, Response, status
+
+from app.api.deps import get_current_user, get_session_service
 from app.api.v1.dtos import SessionResponse
-from app.api.deps import get_session_service, get_current_user
-from app.domain.models import User
 from app.application.services.session_service import SessionService
+from app.domain.models import User
 
 router = APIRouter(prefix="/sessions", tags=["Sessions Management"])
 

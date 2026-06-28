@@ -1,32 +1,26 @@
 import uuid
-import pytest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-from app.domain.models import User, UserSettings, Session, RefreshToken
-from app.domain.enums import UserRole, GeminiModel
-from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
+import pytest
+
+from app.application.services.audit_service import AuditService
+from app.application.services.auth_service import AuthService
+from app.application.services.authorization_service import AuthorizationService
+from app.application.services.password_service import PasswordService
+from app.application.services.session_service import SessionService
+from app.application.services.token_service import TokenService
+from app.core.exceptions import (
+    AccountLocked,
+    Forbidden,
+    InvalidCredentials,
+    TokenReuseDetected,
+    WeakPassword,
+)
+from app.domain.enums import UserRole
 from app.infrastructure.repositories.sqlalchemy_session import (
     SQLAlchemySessionRepository,
 )
-from app.infrastructure.repositories.sqlalchemy_audit import (
-    SQLAlchemyAuditLogRepository,
-)
-from app.application.services.password_service import PasswordService
-from app.application.services.token_service import TokenService
-from app.application.services.session_service import SessionService
-from app.application.services.audit_service import AuditService
-from app.application.services.authorization_service import AuthorizationService
-from app.application.services.auth_service import AuthService
-from app.core.exceptions import (
-    WeakPassword,
-    InvalidCredentials,
-    AccountLocked,
-    TokenExpired,
-    TokenRevoked,
-    TokenReuseDetected,
-    Forbidden,
-)
+from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
 
 # --- Password Validation Tests ---
 
@@ -172,7 +166,7 @@ def test_auth_failed_logins_lockout(db_session):
     password = "SecurePassword123!"
 
     # Register user
-    user = auth_service.register_user(
+    auth_service.register_user(
         email=email,
         password=password,
         full_name="Locked User",
@@ -181,7 +175,7 @@ def test_auth_failed_logins_lockout(db_session):
     )
 
     # Failed logins loop to trigger lockout limit (5 attempts)
-    for i in range(4):
+    for _ in range(4):
         with pytest.raises(InvalidCredentials):
             auth_service.login_user(
                 email=email,

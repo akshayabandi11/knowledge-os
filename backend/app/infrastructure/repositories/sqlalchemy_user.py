@@ -1,9 +1,11 @@
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy.orm import Session
-from app.domain.models import User, UserSettings, RefreshToken
+
+from app.domain.models import RefreshToken, User, UserSettings
 from app.domain.repositories.user_repository import IUserRepository
-from app.infrastructure.db.models import UserModel, UserSettingsModel, RefreshTokenModel
+from app.infrastructure.db.models import RefreshTokenModel, UserModel, UserSettingsModel
 
 
 class SQLAlchemyUserRepository(IUserRepository):
@@ -154,7 +156,7 @@ class SQLAlchemyUserRepository(IUserRepository):
             .first()
         )
         if not db_token:
-            raise ValueError(f"Refresh token not found")
+            raise ValueError("Refresh token not found")
         db_token.revoked = token.revoked
         self.db.flush()
         return RefreshToken.model_validate(db_token)

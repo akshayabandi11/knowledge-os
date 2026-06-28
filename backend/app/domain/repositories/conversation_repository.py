@@ -1,6 +1,7 @@
 import abc
 from typing import List, Optional
 from uuid import UUID
+
 from app.domain.models import Conversation, Message
 from app.domain.repositories.base import IRepository
 

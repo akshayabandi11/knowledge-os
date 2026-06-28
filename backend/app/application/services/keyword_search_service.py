@@ -1,5 +1,6 @@
 import uuid
 from typing import List, Tuple
+
 from app.domain.models import DocumentChunk
 from app.domain.repositories.document_repository import IDocumentRepository
 

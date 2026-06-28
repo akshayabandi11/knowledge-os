@@ -1,8 +1,9 @@
 import uuid
 from typing import List, Tuple
+
+from app.application.services.embedding_service import EmbeddingService
 from app.domain.models import DocumentChunk
 from app.domain.repositories.document_repository import IDocumentRepository
-from app.application.services.embedding_service import EmbeddingService
 
 
 class VectorSearchService:

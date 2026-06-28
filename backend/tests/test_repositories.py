@@ -1,17 +1,15 @@
 import uuid
-from datetime import datetime, timedelta
-from app.domain.models import User, UserSettings, Collection, AuditLog, AIUsageLog
-from app.domain.enums import UserRole, GeminiModel
-from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
-from app.infrastructure.repositories.sqlalchemy_collection import (
-    SQLAlchemyCollectionRepository,
-)
+from datetime import datetime
+
+from app.domain.enums import GeminiModel, UserRole
+from app.domain.models import AuditLog, Collection, User, UserSettings
 from app.infrastructure.repositories.sqlalchemy_audit import (
     SQLAlchemyAuditLogRepository,
 )
-from app.infrastructure.repositories.sqlalchemy_usage import (
-    SQLAlchemyUsageLogRepository,
+from app.infrastructure.repositories.sqlalchemy_collection import (
+    SQLAlchemyCollectionRepository,
 )
+from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
 
 
 def test_user_repository_crud(db_session):

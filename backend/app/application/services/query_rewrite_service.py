@@ -1,7 +1,8 @@
 import os
+
 import google.generativeai as genai
+
 from app.core.config import settings
-from app.core.exceptions import AIProviderError
 
 
 class QueryRewriteService:

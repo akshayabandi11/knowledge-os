@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
 from typing import List, Optional
+
+from app.core.exceptions import ConversationError
 from app.domain.models import Message
 from app.domain.repositories.conversation_repository import IConversationRepository
-from app.core.exceptions import ConversationError
 
 
 class ConversationMemoryService:
@@ -36,7 +37,9 @@ class ConversationMemoryService:
             )
             return self.conv_repo.add_message(message_entity)
         except Exception as e:
-            raise ConversationError(f"Failed to record message to history: {str(e)}")
+            raise ConversationError(
+                f"Failed to record message to history: {str(e)}"
+    ) from e
 
     def get_history_as_string(
         self, conversation_id: uuid.UUID, max_messages: int = 10

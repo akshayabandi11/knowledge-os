@@ -1,6 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.domain.models import AuditLog
 from app.domain.repositories.audit_log_repository import IAuditLogRepository
 from app.infrastructure.db.models import AuditLogModel
@@ -24,7 +26,7 @@ class SQLAlchemyAuditLogRepository(IAuditLogRepository):
             .limit(limit)
             .all()
         )
-        return [AuditLog.model_validate(l) for l in db_logs]
+        return [AuditLog.model_validate(log) for log in db_logs]
 
     def add(self, entity: AuditLog) -> AuditLog:
         db_log = AuditLogModel(
@@ -54,4 +56,4 @@ class SQLAlchemyAuditLogRepository(IAuditLogRepository):
             .limit(limit)
             .all()
         )
-        return [AuditLog.model_validate(l) for l in db_logs]
+        return [AuditLog.model_validate(log) for log in db_logs]

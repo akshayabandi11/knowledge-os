@@ -1,22 +1,22 @@
 import io
 import uuid
-import pytest
-from unittest.mock import MagicMock, patch
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
-from app.domain.models import Document, Collection
+import pytest
+
+from app.application.services.chunking_service import ChunkingService
+from app.application.services.document_service import DocumentService
+from app.application.services.embedding_service import EmbeddingService
+from app.application.services.parsing_service import ParsingService
+from app.application.services.storage_service import StorageService
+from app.core.exceptions import EntityNotFoundError
 from app.domain.enums import DocStatus
-from app.infrastructure.storage.base import IStorageProvider
+from app.domain.models import Collection
 from app.infrastructure.ai.embedding_provider import (
     BaseEmbeddingProvider,
-    GeminiEmbeddingProvider,
 )
-from app.application.services.storage_service import StorageService
-from app.application.services.chunking_service import ChunkingService
-from app.application.services.parsing_service import ParsingService
-from app.application.services.embedding_service import EmbeddingService
-from app.application.services.document_service import DocumentService
-from app.core.exceptions import ValidationError, EntityNotFoundError
+from app.infrastructure.storage.base import IStorageProvider
 
 # --- Storage Service Tests ---
 

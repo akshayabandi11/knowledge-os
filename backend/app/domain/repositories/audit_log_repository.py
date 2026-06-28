@@ -1,6 +1,7 @@
 import abc
 from typing import List
 from uuid import UUID
+
 from app.domain.models import AuditLog
 from app.domain.repositories.base import IRepository
 

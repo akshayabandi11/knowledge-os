@@ -1,33 +1,33 @@
 import uuid
 from typing import List
-from fastapi import APIRouter, Depends, status, Response
+
+from fastapi import APIRouter, Depends, Response, status
 from fastapi.responses import StreamingResponse
 
-from app.api.v1.dtos import (
-    ChatQueryRequest,
-    SearchQueryRequest,
-    QueryRewriteRequest,
-    MessageResponse,
-    ConversationResponse,
-    ChunkSearchResponse,
-)
 from app.api.deps import (
     get_chat_service,
-    get_current_user,
     get_conversation_memory_service,
     get_conversation_repository,
+    get_current_user,
     get_query_rewrite_service,
     get_retrieval_service,
 )
-from app.domain.models import User, Conversation
+from app.api.v1.dtos import (
+    ChatQueryRequest,
+    ChunkSearchResponse,
+    MessageResponse,
+    QueryRewriteRequest,
+    SearchQueryRequest,
+)
 from app.application.services.chat_service import ChatService
 from app.application.services.conversation_memory_service import (
     ConversationMemoryService,
 )
-from app.domain.repositories.conversation_repository import IConversationRepository
 from app.application.services.query_rewrite_service import QueryRewriteService
 from app.application.services.retrieval_service import RetrievalService
 from app.core.exceptions import EntityNotFoundError
+from app.domain.models import User
+from app.domain.repositories.conversation_repository import IConversationRepository
 
 router = APIRouter(prefix="/chat", tags=["RAG Chat & Search System"])
 

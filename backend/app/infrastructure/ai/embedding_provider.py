@@ -1,6 +1,8 @@
 import abc
 from typing import List
+
 import google.generativeai as genai
+
 from app.core.config import settings
 from app.core.exceptions import AIProviderError
 
@@ -42,7 +44,7 @@ class GeminiEmbeddingProvider(BaseEmbeddingProvider):
             )
             return response["embedding"]
         except Exception as e:
-            raise AIProviderError(f"Gemini query embedding failed: {str(e)}")
+            raise AIProviderError(f"Gemini query embedding failed: {str(e)}") from e
 
     def embed_chunks(self, chunks: List[str]) -> List[List[float]]:
         if not settings.GEMINI_API_KEY:
@@ -62,4 +64,4 @@ class GeminiEmbeddingProvider(BaseEmbeddingProvider):
                 embeddings.extend(response["embedding"])
             return embeddings
         except Exception as e:
-            raise AIProviderError(f"Gemini batch embedding failed: {str(e)}")
+            raise AIProviderError(f"Gemini batch embedding failed: {str(e)}") from e

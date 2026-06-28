@@ -1,5 +1,6 @@
-from typing import List, Tuple, Dict, Any
+from typing import Dict, List, Tuple
 from uuid import UUID
+
 from app.domain.models import DocumentChunk
 
 

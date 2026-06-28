@@ -1,23 +1,25 @@
 import json
 import time
 import uuid
-from typing import Generator, Dict, Any, List
+from datetime import datetime
+from typing import Generator
+
 import google.generativeai as genai
 from sqlalchemy.orm import Session as SqlSession
 
-from app.core.config import settings
-from app.core.exceptions import AIProviderError, StreamingError
-from app.domain.models import AIUsageLog, Message
-from app.domain.repositories.usage_log_repository import IUsageLogRepository
-from app.application.services.query_rewrite_service import QueryRewriteService
-from app.application.services.retrieval_service import RetrievalService
-from app.application.services.prompt_builder_service import PromptBuilderService
+from app.application.services.citation_service import CitationService
+from app.application.services.confidence_service import ConfidenceService
 from app.application.services.conversation_memory_service import (
     ConversationMemoryService,
 )
-from app.application.services.citation_service import CitationService
-from app.application.services.confidence_service import ConfidenceService
+from app.application.services.prompt_builder_service import PromptBuilderService
+from app.application.services.query_rewrite_service import QueryRewriteService
+from app.application.services.retrieval_service import RetrievalService
+from app.core.config import settings
+from app.core.exceptions import AIProviderError
 from app.core.logging import logger
+from app.domain.models import AIUsageLog
+from app.domain.repositories.usage_log_repository import IUsageLogRepository
 
 
 class ChatService:

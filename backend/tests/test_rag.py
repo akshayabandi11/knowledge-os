@@ -1,23 +1,17 @@
 import uuid
-import json
-import pytest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from app.domain.models import DocumentChunk, Message, Conversation
-from app.application.services.query_rewrite_service import QueryRewriteService
-from app.application.services.vector_search_service import VectorSearchService
-from app.application.services.keyword_search_service import KeywordSearchService
-from app.application.services.fusion_service import FusionService
-from app.application.services.reranker_service import RerankerService
-from app.application.services.prompt_builder_service import PromptBuilderService
+from app.application.services.chat_service import ChatService
+from app.application.services.citation_service import CitationService
+from app.application.services.confidence_service import ConfidenceService
 from app.application.services.conversation_memory_service import (
     ConversationMemoryService,
 )
-from app.application.services.citation_service import CitationService
-from app.application.services.confidence_service import ConfidenceService
-from app.application.services.retrieval_service import RetrievalService
-from app.application.services.chat_service import ChatService
+from app.application.services.fusion_service import FusionService
+from app.application.services.prompt_builder_service import PromptBuilderService
+from app.application.services.reranker_service import RerankerService
+from app.domain.models import DocumentChunk, Message
 
 # --- Prompt Builder Tests ---
 

@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
+
 from app.domain.models import AuditLog
 from app.domain.repositories.audit_log_repository import IAuditLogRepository
 

@@ -1,6 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy.orm import Session as SqlSession
+
 from app.domain.models import Session
 from app.domain.repositories.session_repository import ISessionRepository
 from app.infrastructure.db.models import SessionModel
@@ -62,7 +64,7 @@ class SQLAlchemySessionRepository(ISessionRepository):
     def get_active_by_user_id(self, user_id: UUID) -> List[Session]:
         db_sess = (
             self.db.query(SessionModel)
-            .filter(SessionModel.user_id == user_id, SessionModel.revoked == False)
+            .filter(SessionModel.user_id == user_id, SessionModel.revoked.is_(False))
             .order_by(SessionModel.last_activity.desc())
             .all()
         )
@@ -86,6 +88,6 @@ class SQLAlchemySessionRepository(ISessionRepository):
 
     def revoke_all_by_user_id(self, user_id: UUID) -> None:
         self.db.query(SessionModel).filter(
-            SessionModel.user_id == user_id, SessionModel.revoked == False
+           SessionModel.user_id == user_id, SessionModel.revoked.is_(False)
         ).update({SessionModel.revoked: True}, synchronize_session=False)
         self.db.flush()

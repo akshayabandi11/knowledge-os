@@ -1,8 +1,9 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.infrastructure.db.session import Base
+
 from app.core.config import settings
+from app.infrastructure.db.session import Base
 
 
 # Engine targeting local test database or standard database URL with a test suffix
@@ -30,8 +31,9 @@ def db_session(db_engine):
     connection = db_engine.connect()
     transaction = connection.begin()
 
-    Session = sessionmaker(bind=connection)
-    session = Session()
+    
+    testing_session = sessionmaker(bind=connection)
+    session = testing_session()
 
     yield session
 

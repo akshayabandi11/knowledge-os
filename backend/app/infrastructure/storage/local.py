@@ -1,9 +1,10 @@
 import os
 import shutil
 from typing import BinaryIO
-from app.infrastructure.storage.base import IStorageProvider
+
 from app.core.config import settings
-from app.core.exceptions import StorageUploadFailed, StorageDeletionFailed
+from app.core.exceptions import StorageDeletionFailed, StorageUploadFailed
+from app.infrastructure.storage.base import IStorageProvider
 
 
 class LocalStorageProvider(IStorageProvider):
@@ -32,7 +33,7 @@ class LocalStorageProvider(IStorageProvider):
                 shutil.copyfileobj(file_data, buffer)
             return dest_path
         except Exception as e:
-            raise StorageUploadFailed(f"Local storage upload failed: {str(e)}")
+            raise StorageUploadFailed(f"Local storage upload failed: {str(e)}") from e
 
     def get_file(self, storage_key: str) -> BinaryIO:
         source_path = self._get_absolute_path(storage_key)
@@ -46,4 +47,4 @@ class LocalStorageProvider(IStorageProvider):
             try:
                 os.remove(file_path)
             except Exception as e:
-                raise StorageDeletionFailed(f"Local storage deletion failed: {str(e)}")
+                raise StorageDeletionFailed(f"Local storage deletion failed: {str(e)}") from e

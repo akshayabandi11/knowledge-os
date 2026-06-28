@@ -1,31 +1,33 @@
 import uuid
-from typing import Dict, Optional
-from fastapi import APIRouter, Depends, Request, Response, status, Cookie
+from datetime import datetime
+from typing import Optional
+
+from fastapi import APIRouter, Cookie, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.v1.dtos import (
-    UserRegisterRequest,
-    UserLoginRequest,
-    LoginResponse,
-    UserResponse,
-    ChangePasswordRequest,
-    ForgotPasswordRequest,
-    ResetPasswordRequest,
-    VerifyEmailRequest,
-    UserUpdateRequest,
-)
 from app.api.deps import (
     get_auth_service,
-    get_token_service,
     get_current_user,
+    get_token_service,
     get_user_repository,
 )
-from app.domain.models import User
+from app.api.v1.dtos import (
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    LoginResponse,
+    ResetPasswordRequest,
+    UserLoginRequest,
+    UserRegisterRequest,
+    UserResponse,
+    UserUpdateRequest,
+    VerifyEmailRequest,
+)
 from app.application.services.auth_service import AuthService
 from app.application.services.token_service import TokenService
-from app.domain.repositories.user_repository import IUserRepository
-from app.core.exceptions import ValidationError, Unauthorized
 from app.core.config import settings
+from app.core.exceptions import Unauthorized
+from app.domain.models import User
+from app.domain.repositories.user_repository import IUserRepository
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -67,7 +69,7 @@ def register(
             ip_address=ip_address,
             device=user_agent,
         )
-    except Exception as e:
+    except Exception:
         import traceback
 
         print("\n" + "=" * 80)

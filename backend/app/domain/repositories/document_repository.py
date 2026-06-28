@@ -1,7 +1,8 @@
 import abc
 from typing import List, Optional, Tuple
 from uuid import UUID
-from app.domain.models import Document, DocumentChunk, Summary, Flashcard, Quiz
+
+from app.domain.models import Document, DocumentChunk, Flashcard, Quiz, Summary
 from app.domain.repositories.base import IRepository
 
 

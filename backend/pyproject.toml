@@ -20,8 +20,12 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "I", "N"]
-ignore = []
 
+ignore = [
+    "B008",  # FastAPI Depends()
+    "N818",  # Exception naming
+    "E501",  # Long lines
+]
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true

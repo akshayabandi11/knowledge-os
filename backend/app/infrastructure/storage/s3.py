@@ -1,10 +1,12 @@
 import io
-from typing import BinaryIO, Optional
+from typing import BinaryIO
+
 import boto3
 from botocore.exceptions import ClientError
-from app.infrastructure.storage.base import IStorageProvider
+
 from app.core.config import settings
-from app.core.exceptions import StorageUploadFailed, StorageDeletionFailed
+from app.core.exceptions import StorageDeletionFailed, StorageUploadFailed
+from app.infrastructure.storage.base import IStorageProvider
 
 
 class S3StorageProvider(IStorageProvider):
@@ -36,7 +38,7 @@ class S3StorageProvider(IStorageProvider):
             # Return logical S3 URI string reference
             return f"s3://{self.bucket_name}/{storage_key}"
         except ClientError as e:
-            raise StorageUploadFailed(f"Cloud storage upload failed: {str(e)}")
+            raise StorageUploadFailed(f"Cloud storage upload failed: {str(e)}") from e
 
     def get_file(self, storage_key: str) -> BinaryIO:
         try:
@@ -48,11 +50,11 @@ class S3StorageProvider(IStorageProvider):
             if e.response.get("Error", {}).get("Code") == "404":
                 raise FileNotFoundError(
                     f"File not found in cloud storage: {storage_key}"
-                )
-            raise StorageDeletionFailed(f"Cloud storage retrieval failed: {str(e)}")
+                ) from e
+            raise StorageDeletionFailed(f"Cloud storage retrieval failed: {str(e)}") from e
 
     def delete_file(self, storage_key: str) -> None:
         try:
             self.s3.delete_object(Bucket=self.bucket_name, Key=storage_key)
         except ClientError as e:
-            raise StorageDeletionFailed(f"Cloud storage deletion failed: {str(e)}")
+            raise StorageDeletionFailed(f"Cloud storage deletion failed: {str(e)}") from e

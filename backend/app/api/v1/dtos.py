@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, EmailStr, Field
+from typing import Any, Dict, List, Optional
 from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field
+
 from app.domain.enums import UserRole
 
 # --- Request DTOs ---

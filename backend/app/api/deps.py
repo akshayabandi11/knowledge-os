@@ -1,81 +1,84 @@
 import uuid
+
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.application.services.audit_service import AuditService
+from app.application.services.auth_service import AuthService
+from app.application.services.authorization_service import AuthorizationService
+from app.application.services.chat_service import ChatService
+from app.application.services.chunking_service import ChunkingService
+from app.application.services.citation_service import CitationService
+from app.application.services.confidence_service import ConfidenceService
+from app.application.services.conversation_memory_service import (
+    ConversationMemoryService,
+)
+from app.application.services.document_service import DocumentService
+from app.application.services.embedding_service import EmbeddingService
+from app.application.services.fusion_service import FusionService
+from app.application.services.keyword_search_service import KeywordSearchService
+from app.application.services.parsing_service import ParsingService
+from app.application.services.password_service import PasswordService
+from app.application.services.prompt_builder_service import PromptBuilderService
+
+# Phase 4 RAG Services
+from app.application.services.query_rewrite_service import QueryRewriteService
+from app.application.services.reranker_service import RerankerService
+from app.application.services.retrieval_service import RetrievalService
+from app.application.services.session_service import SessionService
+
+# Services
+from app.application.services.storage_service import StorageService
+from app.application.services.token_service import TokenService
+from app.application.services.vector_search_service import VectorSearchService
 from app.core.config import settings
-from app.infrastructure.db.session import get_db
-from app.core.exceptions import Unauthorized, Forbidden
+from app.core.exceptions import Unauthorized
 from app.core.logging import user_id_var
+from app.domain.enums import UserRole
+from app.domain.models import User
+from app.domain.repositories.audit_log_repository import IAuditLogRepository
+from app.domain.repositories.collection_repository import ICollectionRepository
+from app.domain.repositories.conversation_repository import IConversationRepository
+from app.domain.repositories.document_repository import IDocumentRepository
+from app.domain.repositories.session_repository import ISessionRepository
+from app.domain.repositories.usage_log_repository import IUsageLogRepository
 
 # Repositories Abstractions
 from app.domain.repositories.user_repository import IUserRepository
-from app.domain.repositories.collection_repository import ICollectionRepository
-from app.domain.repositories.document_repository import IDocumentRepository
-from app.domain.repositories.audit_log_repository import IAuditLogRepository
-from app.domain.repositories.usage_log_repository import IUsageLogRepository
-from app.domain.repositories.session_repository import ISessionRepository
-from app.domain.repositories.conversation_repository import IConversationRepository
-
-# Concrete Repositories
-from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
-from app.infrastructure.repositories.sqlalchemy_collection import (
-    SQLAlchemyCollectionRepository,
-)
-from app.infrastructure.repositories.sqlalchemy_document import (
-    SQLAlchemyDocumentRepository,
-)
-from app.infrastructure.repositories.sqlalchemy_audit import (
-    SQLAlchemyAuditLogRepository,
-)
-from app.infrastructure.repositories.sqlalchemy_usage import (
-    SQLAlchemyUsageLogRepository,
-)
-from app.infrastructure.repositories.sqlalchemy_session import (
-    SQLAlchemySessionRepository,
-)
-from app.infrastructure.repositories.sqlalchemy_conversation import (
-    SQLAlchemyConversationRepository,
-)
-
-# Storage Providers
-from app.infrastructure.storage.base import IStorageProvider
-from app.infrastructure.storage.local import LocalStorageProvider
-from app.infrastructure.storage.s3 import S3StorageProvider
 
 # AI Embedding Providers
 from app.infrastructure.ai.embedding_provider import (
     BaseEmbeddingProvider,
     GeminiEmbeddingProvider,
 )
-
-# Services
-from app.application.services.storage_service import StorageService
-from app.application.services.parsing_service import ParsingService
-from app.application.services.chunking_service import ChunkingService
-from app.application.services.embedding_service import EmbeddingService
-from app.application.services.document_service import DocumentService
-from app.application.services.password_service import PasswordService
-from app.application.services.token_service import TokenService
-from app.application.services.session_service import SessionService
-from app.application.services.audit_service import AuditService
-from app.application.services.authorization_service import AuthorizationService
-from app.application.services.auth_service import AuthService
-
-# Phase 4 RAG Services
-from app.application.services.query_rewrite_service import QueryRewriteService
-from app.application.services.vector_search_service import VectorSearchService
-from app.application.services.keyword_search_service import KeywordSearchService
-from app.application.services.fusion_service import FusionService
-from app.application.services.reranker_service import RerankerService
-from app.application.services.prompt_builder_service import PromptBuilderService
-from app.application.services.conversation_memory_service import (
-    ConversationMemoryService,
+from app.infrastructure.db.session import get_db
+from app.infrastructure.repositories.sqlalchemy_audit import (
+    SQLAlchemyAuditLogRepository,
 )
-from app.application.services.citation_service import CitationService
-from app.application.services.confidence_service import ConfidenceService
-from app.application.services.retrieval_service import RetrievalService
-from app.application.services.chat_service import ChatService
+from app.infrastructure.repositories.sqlalchemy_collection import (
+    SQLAlchemyCollectionRepository,
+)
+from app.infrastructure.repositories.sqlalchemy_conversation import (
+    SQLAlchemyConversationRepository,
+)
+from app.infrastructure.repositories.sqlalchemy_document import (
+    SQLAlchemyDocumentRepository,
+)
+from app.infrastructure.repositories.sqlalchemy_session import (
+    SQLAlchemySessionRepository,
+)
+from app.infrastructure.repositories.sqlalchemy_usage import (
+    SQLAlchemyUsageLogRepository,
+)
+
+# Concrete Repositories
+from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
+
+# Storage Providers
+from app.infrastructure.storage.base import IStorageProvider
+from app.infrastructure.storage.local import LocalStorageProvider
+from app.infrastructure.storage.s3 import S3StorageProvider
 
 # --- Security Mappings ---
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -300,8 +303,6 @@ def get_chat_service(
 
 # --- Authentication & Authorization Request Filters ---
 
-from app.domain.models import User
-from app.domain.enums import UserRole
 
 
 def get_current_user(
@@ -315,7 +316,7 @@ def get_current_user(
         user_id = uuid.UUID(payload["sub"])
         token_family = uuid.UUID(payload["token_family"])
     except Exception as e:
-        raise Unauthorized(f"Authentication failed: {str(e)}")
+        raise Unauthorized(f"Authentication failed: {str(e)}") from e
 
     user = user_repo.get_by_id(user_id)
     if not user:

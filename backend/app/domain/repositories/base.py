@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Optional, List, Any
+from typing import Generic, List, Optional, TypeVar
 from uuid import UUID
 
 T = TypeVar("T")

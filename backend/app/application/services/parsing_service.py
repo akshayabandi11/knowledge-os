@@ -1,10 +1,11 @@
-import io
 import os
 from typing import BinaryIO
-import pypdf
+
 import google.generativeai as genai
+import pypdf
+
 from app.core.config import settings
-from app.core.exceptions import ValidationError, AIProviderError
+from app.core.exceptions import AIProviderError, ValidationError
 
 
 class ParsingService:
@@ -36,7 +37,7 @@ class ParsingService:
             file_data.seek(0)
             return file_data.read().decode("utf-8")
         except Exception as e:
-            raise ValidationError(f"Failed to parse text file: {str(e)}")
+            raise ValidationError(f"Failed to parse text file: {str(e)}") from e
 
     def parse_pdf(self, file_data: BinaryIO) -> str:
         try:
@@ -50,7 +51,7 @@ class ParsingService:
                     text_parts.append(f"--- PAGE {i + 1} ---\n{page_text}")
             return "\n\n".join(text_parts)
         except Exception as e:
-            raise ValidationError(f"Failed to parse PDF file: {str(e)}")
+            raise ValidationError(f"Failed to parse PDF file: {str(e)}") from e
 
     def parse_image_ocr(self, file_data: BinaryIO, mime_type: str) -> str:
         """
@@ -79,7 +80,7 @@ class ParsingService:
                 )
             return response.text
         except Exception as e:
-            raise AIProviderError(f"Gemini OCR extraction failed: {str(e)}")
+            raise AIProviderError(f"Gemini OCR extraction failed: {str(e)}") from e
 
     def parse_file(self, file_data: BinaryIO, file_name: str, file_type: str) -> str:
         ext = file_name.split(".")[-1].lower()

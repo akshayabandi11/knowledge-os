@@ -1,4 +1,5 @@
 from typing import List
+
 from app.infrastructure.ai.embedding_provider import BaseEmbeddingProvider
 
 

@@ -1,15 +1,15 @@
-import uuid
 import hashlib
+import uuid
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Any, Dict
+
 import jwt
 
 from app.core.config import settings
 from app.core.exceptions import (
-    TokenExpired,
-    TokenRevoked,
-    TokenReuseDetected,
     AuthenticationError,
+    TokenExpired,
+    TokenReuseDetected,
 )
 from app.domain.models import RefreshToken
 from app.domain.repositories.user_repository import IUserRepository
@@ -86,10 +86,10 @@ class TokenService:
             if payload.get("type") != "access":
                 raise AuthenticationError("Invalid token type. Access token expected.")
             return payload
-        except jwt.ExpiredSignatureError:
-            raise TokenExpired("Access token expired.")
-        except jwt.InvalidTokenError:
-            raise AuthenticationError("Invalid access token.")
+        except jwt.ExpiredSignatureError as e:
+            raise TokenExpired("Access token expired.") from e
+        except jwt.InvalidTokenError as e:
+            raise AuthenticationError("Invalid access token.") from e
 
     def rotate_refresh_token(self, raw_refresh_token: str) -> tuple[str, str]:
         """
@@ -103,10 +103,10 @@ class TokenService:
             )
             if payload.get("type") != "refresh":
                 raise AuthenticationError("Invalid token type. Refresh token expected.")
-        except jwt.ExpiredSignatureError:
-            raise TokenExpired("Refresh token expired. Please log in again.")
-        except jwt.InvalidTokenError:
-            raise AuthenticationError("Invalid refresh token.")
+        except jwt.ExpiredSignatureError as e:
+            raise TokenExpired("Refresh token expired. Please log in again.") from e
+        except jwt.InvalidTokenError as e:
+            raise AuthenticationError("Invalid refresh token.") from e
 
         user_id = uuid.UUID(payload["sub"])
         token_family = uuid.UUID(payload["token_family"])

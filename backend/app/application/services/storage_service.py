@@ -1,6 +1,7 @@
 from typing import BinaryIO
-from app.infrastructure.storage.base import IStorageProvider
+
 from app.core.exceptions import StorageError
+from app.infrastructure.storage.base import IStorageProvider
 
 
 class StorageService:
@@ -17,21 +18,21 @@ class StorageService:
             return self.provider.upload_file(file_data, storage_key)
         except Exception as e:
             if not isinstance(e, StorageError):
-                raise StorageError(f"Unexpected upload failure: {str(e)}")
-            raise e
+                raise StorageError(f"Unexpected upload failure: {str(e)}") from e
+            raise 
 
     def download(self, storage_key: str) -> BinaryIO:
         try:
             return self.provider.get_file(storage_key)
         except Exception as e:
             if not isinstance(e, StorageError):
-                raise StorageError(f"Unexpected retrieval failure: {str(e)}")
-            raise e
+                raise StorageError(f"Unexpected retrieval failure: {str(e)}") from e
+            raise 
 
     def delete(self, storage_key: str) -> None:
         try:
             self.provider.delete_file(storage_key)
         except Exception as e:
             if not isinstance(e, StorageError):
-                raise StorageError(f"Unexpected deletion failure: {str(e)}")
-            raise e
+                raise StorageError(f"Unexpected deletion failure: {str(e)}") from e
+            raise 

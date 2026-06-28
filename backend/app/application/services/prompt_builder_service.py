@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+
 from app.core.exceptions import PromptBuildError
 
 
@@ -27,7 +28,7 @@ class PromptBuilderService:
             with open(path, "r", encoding="utf-8") as f:
                 return f.read().strip()
         except Exception as e:
-            raise PromptBuildError(f"Failed to read prompt template: {str(e)}")
+            raise PromptBuildError(f"Failed to read prompt template: {str(e)}") from e
 
     def build_prompt(self, template_name: str, placeholders: Dict[str, Any]) -> str:
         """
@@ -42,4 +43,4 @@ class PromptBuilderService:
                 formatted = formatted.replace(target, str(value))
             return formatted
         except Exception as e:
-            raise PromptBuildError(f"Failed formatting prompt placeholders: {str(e)}")
+            raise PromptBuildError(f"Failed formatting prompt placeholders: {str(e)}") from e

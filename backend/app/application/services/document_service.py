@@ -1,33 +1,32 @@
-import uuid
-import time
-import io
 import hashlib
+import time
+import uuid
 from datetime import datetime
 from typing import BinaryIO, List
+
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
-from app.domain.models import Document, DocumentChunk
-from app.domain.enums import DocStatus
-from app.domain.repositories.document_repository import IDocumentRepository
-from app.domain.repositories.collection_repository import (
-    ICollectionRepository,
-)  # Ensure name matches setup
+from app.application.services.chunking_service import ChunkingService
+from app.application.services.embedding_service import EmbeddingService
+from app.application.services.parsing_service import ParsingService
 
 # Wait! Let's check the collections repository import name from Phase 1 deps.py:
 # from app.domain.repositories.collection_repository import ICollectionRepository
 # Let's import:
-from app.domain.repositories.collection_repository import ICollectionRepository
 from app.application.services.storage_service import StorageService
-from app.application.services.parsing_service import ParsingService
-from app.application.services.chunking_service import ChunkingService
-from app.application.services.embedding_service import EmbeddingService
+from app.core.exceptions import EntityNotFoundError, ValidationError
+from app.core.logging import logger
+from app.domain.enums import DocStatus
+from app.domain.models import Document, DocumentChunk
+from app.domain.repositories.collection_repository import (
+    ICollectionRepository,
+)  # Ensure name matches setup
+from app.domain.repositories.document_repository import IDocumentRepository
 from app.infrastructure.db.session import SessionLocal
 from app.infrastructure.repositories.sqlalchemy_document import (
     SQLAlchemyDocumentRepository,
 )
-from app.core.exceptions import ValidationError, EntityNotFoundError, DomainError
-from app.core.logging import logger
 
 
 class DocumentService:
@@ -223,7 +222,7 @@ class DocumentService:
             embeddings = self.embedding_service.embed_chunks(chunk_texts)
 
             # Assign embeddings back to chunks
-            for chunk, emb in zip(chunk_entities, embeddings):
+            for chunk, emb in zip(chunk_entities, embeddings,strict=False):
                 chunk.embedding = emb
 
             # 5. Save chunks to Database

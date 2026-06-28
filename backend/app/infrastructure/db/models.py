@@ -1,22 +1,23 @@
 from datetime import datetime
+
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+    Boolean,
     Column,
-    String,
+    DateTime,
+    Enum,
+    ForeignKey,
     Integer,
     Numeric,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    Enum,
+    String,
     Text,
     text,
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
-from pgvector.sqlalchemy import Vector
 
+from app.domain.enums import DocStatus, GeminiModel, SenderRole, UserRole
 from app.infrastructure.db.session import Base
-from app.domain.enums import UserRole, DocStatus, SenderRole, GeminiModel
 
 # --- Models ---
 

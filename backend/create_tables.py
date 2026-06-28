@@ -1,5 +1,4 @@
-from app.infrastructure.db.session import engine, Base
-import app.infrastructure.db.base  # Imports all models
+from app.infrastructure.db.session import Base, engine
 
 print("Creating database tables...")
 

@@ -1,11 +1,12 @@
 import uuid
 from typing import List, Tuple
-from app.domain.models import DocumentChunk
-from app.application.services.vector_search_service import VectorSearchService
-from app.application.services.keyword_search_service import KeywordSearchService
+
 from app.application.services.fusion_service import FusionService
+from app.application.services.keyword_search_service import KeywordSearchService
 from app.application.services.reranker_service import RerankerService
-from app.core.exceptions import RetrievalError, NoContextFound
+from app.application.services.vector_search_service import VectorSearchService
+from app.core.exceptions import NoContextFound, RetrievalError
+from app.domain.models import DocumentChunk
 
 
 class RetrievalService:
@@ -71,5 +72,5 @@ class RetrievalService:
             return reranked_results
         except Exception as e:
             if not isinstance(e, RetrievalError):
-                raise RetrievalError(f"RAG Retrieval failed: {str(e)}")
-            raise e
+                raise RetrievalError(f"RAG Retrieval failed: {str(e)}") from e
+            raise 

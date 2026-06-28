@@ -1,6 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.domain.models import AIUsageLog
 from app.domain.repositories.usage_log_repository import IUsageLogRepository
 from app.infrastructure.db.models import AIUsageLogModel
@@ -24,7 +26,7 @@ class SQLAlchemyUsageLogRepository(IUsageLogRepository):
             .limit(limit)
             .all()
         )
-        return [AIUsageLog.model_validate(l) for l in db_logs]
+        return [AIUsageLog.model_validate(log) for log in db_logs]
 
     def add(self, entity: AIUsageLog) -> AIUsageLog:
         db_log = AIUsageLogModel(
@@ -58,4 +60,4 @@ class SQLAlchemyUsageLogRepository(IUsageLogRepository):
             .limit(limit)
             .all()
         )
-        return [AIUsageLog.model_validate(l) for l in db_logs]
+        return [AIUsageLog.model_validate(log) for log in db_logs]

@@ -1,23 +1,24 @@
 import uuid
 from datetime import datetime, timedelta
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 from sqlalchemy.orm import Session as SqlSession
 
-from app.domain.models import User, UserSettings
-from app.domain.enums import UserRole, GeminiModel
-from app.domain.repositories.user_repository import IUserRepository
-from app.application.services.password_service import PasswordService
-from app.application.services.token_service import TokenService
-from app.application.services.session_service import SessionService
 from app.application.services.audit_service import AuditService
+from app.application.services.password_service import PasswordService
+from app.application.services.session_service import SessionService
+from app.application.services.token_service import TokenService
 from app.core.exceptions import (
-    InvalidCredentials,
     AccountLocked,
-    ValidationError,
+    InvalidCredentials,
     UserNotFoundError,
-    AuthenticationError,
+    ValidationError,
 )
 from app.core.logging import logger
+from app.domain.enums import GeminiModel, UserRole
+from app.domain.models import User, UserSettings
+from app.domain.repositories.user_repository import IUserRepository
+from app.infrastructure.db.models import UserModel
 
 
 class AuthService:

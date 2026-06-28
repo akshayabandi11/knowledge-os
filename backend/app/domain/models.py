@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Optional, List, Any
-from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional
 from uuid import UUID
 
-from app.domain.enums import UserRole, DocStatus, SenderRole, GeminiModel
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.domain.enums import DocStatus, GeminiModel, SenderRole, UserRole
 
 # --- Domain Entities ---
 

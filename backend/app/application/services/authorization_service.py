@@ -1,5 +1,5 @@
-from app.domain.enums import UserRole
 from app.core.exceptions import Forbidden
+from app.domain.enums import UserRole
 
 
 class AuthorizationService:

@@ -1,6 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy.orm import Session
+
 from app.domain.models import Conversation, Message
 from app.domain.repositories.conversation_repository import IConversationRepository
 from app.infrastructure.db.models import ConversationModel, MessageModel
