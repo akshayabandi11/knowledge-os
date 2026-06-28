@@ -7,18 +7,20 @@ from app.application.services.fusion_service import FusionService
 from app.application.services.reranker_service import RerankerService
 from app.core.exceptions import RetrievalError, NoContextFound
 
+
 class RetrievalService:
     """
     Coordinator Service managing the Hybrid Retrieval Pipeline.
     Triggers concurrent Vector and Keyword FTS searches, fuses ranks via RRF,
     and applies reranking heuristics to return the top supporting chunks.
     """
+
     def __init__(
         self,
         vector_search_service: VectorSearchService,
         keyword_search_service: KeywordSearchService,
         fusion_service: FusionService,
-        reranker_service: RerankerService
+        reranker_service: RerankerService,
     ):
         self.vector_search_service = vector_search_service
         self.keyword_search_service = keyword_search_service
@@ -26,11 +28,11 @@ class RetrievalService:
         self.reranker_service = reranker_service
 
     def retrieve_context(
-        self, 
-        collection_id: uuid.UUID, 
-        query: str, 
+        self,
+        collection_id: uuid.UUID,
+        query: str,
         limit: int = 5,
-        similarity_threshold: float = 0.50
+        similarity_threshold: float = 0.50,
     ) -> List[Tuple[DocumentChunk, float]]:
         """
         Executes hybrid search (Vector + Keyword), fuses lists, reranks,
@@ -41,32 +43,29 @@ class RetrievalService:
             vector_results = self.vector_search_service.search(
                 collection_id=collection_id,
                 query=query,
-                limit=15, # Oversample to allow rich fusion
-                similarity_threshold=similarity_threshold
+                limit=15,  # Oversample to allow rich fusion
+                similarity_threshold=similarity_threshold,
             )
-            
+
             # 2. Execute full-text keyword search
             keyword_results = self.keyword_search_service.search(
-                collection_id=collection_id,
-                query=query,
-                limit=15
+                collection_id=collection_id, query=query, limit=15
             )
-            
+
             # If no matches found in either system, raise exception
             if not vector_results and not keyword_results:
-                raise NoContextFound("No supporting context found in collection documents.")
+                raise NoContextFound(
+                    "No supporting context found in collection documents."
+                )
 
             # 3. Fuse lists using Reciprocal Rank Fusion (RRF)
             fused_results = self.fusion_service.fuse_results(
-                vector_results=vector_results,
-                keyword_results=keyword_results
+                vector_results=vector_results, keyword_results=keyword_results
             )
 
             # 4. Rerank top results
             reranked_results = self.reranker_service.rerank(
-                query=query,
-                chunks=fused_results,
-                limit=limit
+                query=query, chunks=fused_results, limit=limit
             )
 
             return reranked_results

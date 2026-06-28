@@ -23,7 +23,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    redoc_url="/api/redoc",
 )
 
 # CORS Setup
@@ -36,27 +36,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Correlation ID, Security Headers & Metric Logger Middleware
 @app.middleware("http")
 async def security_and_metrics_middleware(request: Request, call_next):
     # Set request ID
     request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
     request_id_var.set(request_id)
-    
+
     # Initialize user ID variable as empty
     user_id_var.set("")
-    
+
     start_time = time.time()
-    
+
     # Process Request
     response = await call_next(request)
-    
+
     # Calculate performance duration
     duration_ms = int((time.time() - start_time) * 1000)
-    
+
     # Attach correlation headers
     response.headers["X-Request-ID"] = request_id
-    
+
     # Enforce Secure HTTP Security Headers
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
@@ -68,10 +69,10 @@ async def security_and_metrics_middleware(request: Request, call_next):
         "object-src 'none';"
     )
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    
+
     # Extract contextual values
     user_id = user_id_var.get() or "unauthenticated"
-    
+
     # Log structured details
     logger.info(
         f"API Request processed | "
@@ -82,8 +83,9 @@ async def security_and_metrics_middleware(request: Request, call_next):
         f"Status: {response.status_code} | "
         f"Duration: {duration_ms}ms"
     )
-    
+
     return response
+
 
 # Centralized Domain Exceptions mapping handler (RFC 7807)
 @app.exception_handler(DomainError)
@@ -96,7 +98,7 @@ async def domain_exception_handler(request: Request, exc: DomainError):
         "detail": str(exc),
         "instance": request.url.path,
         "code": exc.code,
-        "request_id": request_id
+        "request_id": request_id,
     }
     logger.error(
         f"Domain Error processing request | "
@@ -107,10 +109,12 @@ async def domain_exception_handler(request: Request, exc: DomainError):
     )
     return JSONResponse(status_code=exc.status_code, content=error_content)
 
+
 # Include Routers
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(chat_router, prefix="/api/v1")
+
 
 # Health & Database Connectivity verification route
 @app.get("/healthz")
@@ -120,7 +124,7 @@ def health_check(db: Session = Depends(get_db)):
         return {
             "status": "healthy",
             "database": "connected",
-            "project": settings.PROJECT_NAME
+            "project": settings.PROJECT_NAME,
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
@@ -129,6 +133,6 @@ def health_check(db: Session = Depends(get_db)):
             content={
                 "status": "unhealthy",
                 "database": "disconnected",
-                "error": str(e)
-            }
+                "error": str(e),
+            },
         )

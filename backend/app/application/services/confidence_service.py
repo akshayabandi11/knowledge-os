@@ -1,15 +1,15 @@
 from typing import List, Tuple
 from app.domain.models import DocumentChunk
 
+
 class ConfidenceService:
     """
     Service responsible for calculating the confidence score of a RAG pipeline answer.
     Analyzes vector similarities and source coverage constraints.
     """
-    
+
     def calculate_confidence(
-        self, 
-        reranked_chunks: List[Tuple[DocumentChunk, float]]
+        self, reranked_chunks: List[Tuple[DocumentChunk, float]]
     ) -> str:
         """
         Calculates confidence index: "High", "Medium", or "Low".
@@ -24,7 +24,7 @@ class ConfidenceService:
         # Calculate mean similarity of retrieved chunks
         scores = [score for _, score in reranked_chunks]
         mean_score = sum(scores) / len(scores) if scores else 0.0
-        
+
         chunk_count = len(reranked_chunks)
 
         if mean_score >= 0.82 and chunk_count >= 3:

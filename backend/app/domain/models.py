@@ -7,6 +7,7 @@ from app.domain.enums import UserRole, DocStatus, SenderRole, GeminiModel
 
 # --- Domain Entities ---
 
+
 class UserSettings(BaseModel):
     user_id: UUID
     preferred_model: GeminiModel
@@ -41,7 +42,7 @@ class User(BaseModel):
     hashed_password: str
     full_name: Optional[str] = None
     role: UserRole
-    
+
     # Account status & Security fields
     email_verified: bool
     verification_token: Optional[str] = None
@@ -49,7 +50,7 @@ class User(BaseModel):
     password_reset_expires_at: Optional[datetime] = None
     failed_login_attempts: int
     locked_until: Optional[datetime] = None
-    
+
     created_at: datetime
     updated_at: datetime
     settings: Optional[UserSettings] = None
@@ -90,7 +91,7 @@ class Document(BaseModel):
     storage_key: str
     status: DocStatus
     error_message: Optional[str] = None
-    
+
     # Metadata Fields
     page_count: Optional[int] = None
     language: Optional[str] = None
@@ -98,7 +99,7 @@ class Document(BaseModel):
     file_hash: Optional[str] = None
     processing_time_ms: Optional[int] = None
     chunk_count: Optional[int] = None
-    
+
     created_at: datetime
     updated_at: datetime
 

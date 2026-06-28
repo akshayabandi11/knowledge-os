@@ -2,11 +2,13 @@ from typing import BinaryIO
 from app.infrastructure.storage.base import IStorageProvider
 from app.core.exceptions import StorageError
 
+
 class StorageService:
     """
     Application service that coordinates file operations.
     Acts as a middleware layer decoupling storage use cases from specific S3 or Local disk providers.
     """
+
     def __init__(self, provider: IStorageProvider):
         self.provider = provider
 

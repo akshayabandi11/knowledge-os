@@ -6,17 +6,21 @@ import google.generativeai as genai
 from app.core.config import settings
 from app.core.exceptions import ValidationError, AIProviderError
 
+
 class ParsingService:
     """
     Service responsible for extracting text from different file formats.
     Dynamically loads prompt instructions from disk templates.
     """
+
     def __init__(self):
         if settings.GEMINI_API_KEY:
             genai.configure(api_key=settings.GEMINI_API_KEY)
         self.prompts_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-            "prompts"
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            "prompts",
         )
 
     def _get_prompt_template(self, filename: str) -> str:
@@ -54,34 +58,32 @@ class ParsingService:
         Loads instructions dynamically from disk templates.
         """
         if not settings.GEMINI_API_KEY:
-            raise AIProviderError("Gemini API key is not configured. OCR requires Gemini access.")
-            
+            raise AIProviderError(
+                "Gemini API key is not configured. OCR requires Gemini access."
+            )
+
         try:
             file_data.seek(0)
             image_bytes = file_data.read()
-            
+
             # Load OCR instructions template from disk
             ocr_instruction = self._get_prompt_template("ocr.txt")
-            
+
             model = genai.GenerativeModel("gemini-1.5-flash")
-            contents = [
-                {
-                    "mime_type": mime_type,
-                    "data": image_bytes
-                },
-                ocr_instruction
-            ]
-            
+            contents = [{"mime_type": mime_type, "data": image_bytes}, ocr_instruction]
+
             response = model.generate_content(contents=contents)
             if not response.text:
-                raise AIProviderError("Gemini model returned empty response for OCR request.")
+                raise AIProviderError(
+                    "Gemini model returned empty response for OCR request."
+                )
             return response.text
         except Exception as e:
             raise AIProviderError(f"Gemini OCR extraction failed: {str(e)}")
 
     def parse_file(self, file_data: BinaryIO, file_name: str, file_type: str) -> str:
         ext = file_name.split(".")[-1].lower()
-        
+
         if ext == "txt":
             return self.parse_txt(file_data)
         elif ext == "pdf":

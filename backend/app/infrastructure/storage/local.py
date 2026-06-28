@@ -5,11 +5,13 @@ from app.infrastructure.storage.base import IStorageProvider
 from app.core.config import settings
 from app.core.exceptions import StorageUploadFailed, StorageDeletionFailed
 
+
 class LocalStorageProvider(IStorageProvider):
     """
     Storage provider that reads and writes files directly to the local disk.
     Used during development and staging environments.
     """
+
     def __init__(self, base_path: str = settings.LOCAL_STORAGE_PATH):
         self.base_path = base_path
         # Ensure upload base directory exists
@@ -22,7 +24,7 @@ class LocalStorageProvider(IStorageProvider):
         dest_path = self._get_absolute_path(storage_key)
         # Ensure any sub-folders in key exist
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        
+
         try:
             with open(dest_path, "wb") as buffer:
                 # Seek to beginning to make sure we read entire stream

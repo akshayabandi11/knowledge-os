@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.models import Session
 from app.domain.repositories.base import IRepository
 
+
 class ISessionRepository(IRepository[Session], abc.ABC):
     @abc.abstractmethod
     def get_active_by_user_id(self, user_id: UUID) -> List[Session]:

@@ -5,11 +5,13 @@ from app.domain.models import Session
 from app.domain.repositories.session_repository import ISessionRepository
 from app.core.exceptions import SessionNotFoundError, Forbidden
 
+
 class SessionService:
     """
     Service responsible for managing user login sessions.
     Coordinates creation, validation, active lists, and session revoking.
     """
+
     def __init__(self, session_repo: ISessionRepository):
         self.session_repo = session_repo
 
@@ -20,7 +22,7 @@ class SessionService:
         device_name: Optional[str],
         browser: Optional[str],
         operating_system: Optional[str],
-        ip_address: str
+        ip_address: str,
     ) -> Session:
         """
         Registers a new user session on successful logins.
@@ -36,7 +38,7 @@ class SessionService:
             last_activity=datetime.utcnow(),
             token_family=token_family,
             revoked=False,
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
         )
         return self.session_repo.add(session_entity)
 
@@ -62,16 +64,19 @@ class SessionService:
         session = self.session_repo.get_by_id(session_id)
         if not session:
             raise SessionNotFoundError("Session not found.")
-            
+
         if session.user_id != user_id:
             raise PermissionDeniedError("Cannot terminate another user's session.")
-            
+
         session.revoked = True
         self.session_repo.update(session)
-        
+
         # Revoke associated refresh token family
         # We trigger cascade invalidation of refresh tokens by revoking the token family
-        from app.infrastructure.repositories.sqlalchemy_user import SQLAlchemyUserRepository
+        from app.infrastructure.repositories.sqlalchemy_user import (
+            SQLAlchemyUserRepository,
+        )
+
         # To keep DI clean, we let session service revoke the family on repository
         # (This is handled by AuthService or TokenService cascade, but revoking the family here is safe)
         self.session_repo.revoke_by_family(session.token_family)

@@ -1,11 +1,13 @@
 from typing import List
 from app.infrastructure.ai.embedding_provider import BaseEmbeddingProvider
 
+
 class EmbeddingService:
     """
     Service responsible for managing text chunk embedding operations.
     Delegates concrete execution to an injected BaseEmbeddingProvider.
     """
+
     def __init__(self, provider: BaseEmbeddingProvider):
         self.provider = provider
 

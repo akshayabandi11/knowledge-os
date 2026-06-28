@@ -5,12 +5,15 @@ from app.domain.models import Collection
 from app.domain.repositories.collection_repository import ICollectionRepository
 from app.infrastructure.db.models import CollectionModel
 
+
 class SQLAlchemyCollectionRepository(ICollectionRepository):
     def __init__(self, db: Session):
         self.db = db
 
     def get_by_id(self, id: UUID) -> Optional[Collection]:
-        db_coll = self.db.query(CollectionModel).filter(CollectionModel.id == id).first()
+        db_coll = (
+            self.db.query(CollectionModel).filter(CollectionModel.id == id).first()
+        )
         if not db_coll:
             return None
         return Collection.model_validate(db_coll)
@@ -26,14 +29,18 @@ class SQLAlchemyCollectionRepository(ICollectionRepository):
             name=entity.name,
             description=entity.description,
             created_at=entity.created_at,
-            updated_at=entity.updated_at
+            updated_at=entity.updated_at,
         )
         self.db.add(db_coll)
         self.db.flush()
         return Collection.model_validate(db_coll)
 
     def update(self, entity: Collection) -> Collection:
-        db_coll = self.db.query(CollectionModel).filter(CollectionModel.id == entity.id).first()
+        db_coll = (
+            self.db.query(CollectionModel)
+            .filter(CollectionModel.id == entity.id)
+            .first()
+        )
         if not db_coll:
             raise ValueError(f"Collection {entity.id} not found")
         db_coll.name = entity.name
@@ -43,20 +50,31 @@ class SQLAlchemyCollectionRepository(ICollectionRepository):
         return Collection.model_validate(db_coll)
 
     def delete(self, id: UUID) -> None:
-        db_coll = self.db.query(CollectionModel).filter(CollectionModel.id == id).first()
+        db_coll = (
+            self.db.query(CollectionModel).filter(CollectionModel.id == id).first()
+        )
         if db_coll:
             self.db.delete(db_coll)
             self.db.flush()
 
     def get_by_user_id(self, user_id: UUID) -> List[Collection]:
-        db_colls = self.db.query(CollectionModel).filter(CollectionModel.user_id == user_id).all()
+        db_colls = (
+            self.db.query(CollectionModel)
+            .filter(CollectionModel.user_id == user_id)
+            .all()
+        )
         return [Collection.model_validate(c) for c in db_colls]
 
-    def get_by_id_and_user_id(self, collection_id: UUID, user_id: UUID) -> Optional[Collection]:
-        db_coll = self.db.query(CollectionModel).filter(
-            CollectionModel.id == collection_id, 
-            CollectionModel.user_id == user_id
-        ).first()
+    def get_by_id_and_user_id(
+        self, collection_id: UUID, user_id: UUID
+    ) -> Optional[Collection]:
+        db_coll = (
+            self.db.query(CollectionModel)
+            .filter(
+                CollectionModel.id == collection_id, CollectionModel.user_id == user_id
+            )
+            .first()
+        )
         if not db_coll:
             return None
         return Collection.model_validate(db_coll)

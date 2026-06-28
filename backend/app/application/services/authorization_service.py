@@ -1,12 +1,13 @@
 from app.domain.enums import UserRole
 from app.core.exceptions import Forbidden
 
+
 class AuthorizationService:
     """
     Service responsible for verifying User Role Based Access Control (RBAC).
     Decoupled to support permission-based validation hooks in the future.
     """
-    
+
     def authorize_role(self, user_role: UserRole, required_role: UserRole) -> None:
         """
         Checks if the current user role satisfies the required clearance role.
@@ -19,9 +20,13 @@ class AuthorizationService:
             raise Forbidden("Admin clearance is required to execute this operation.")
 
         if user_role != required_role:
-            raise Forbidden("You do not have the required permissions to perform this action.")
-            
-    def authorize_resource_ownership(self, resource_owner_id: str, requesting_user_id: str) -> None:
+            raise Forbidden(
+                "You do not have the required permissions to perform this action."
+            )
+
+    def authorize_resource_ownership(
+        self, resource_owner_id: str, requesting_user_id: str
+    ) -> None:
         """
         Checks if the requesting user owns the target resource.
         """

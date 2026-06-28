@@ -14,7 +14,8 @@ from app.infrastructure.db.models import (
     QuizModel,
     QuizQuestionModel,
     AuditLogModel,
-    AIUsageLogModel
+    AIUsageLogModel,
 )
+
 # Ensure pgvector is registered
 import pgvector.sqlalchemy

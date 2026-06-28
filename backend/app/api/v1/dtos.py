@@ -6,9 +6,12 @@ from app.domain.enums import UserRole
 
 # --- Request DTOs ---
 
+
 class UserRegisterRequest(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8, description="Must be secure and meet complexity criteria")
+    password: str = Field(
+        ..., min_length=8, description="Must be secure and meet complexity criteria"
+    )
     full_name: Optional[str] = Field(None, max_length=100)
 
 
@@ -41,7 +44,9 @@ class VerifyEmailRequest(BaseModel):
 class UserUpdateRequest(BaseModel):
     full_name: Optional[str] = Field(None, max_length=100)
 
+
 # --- Phase 4 RAG Request DTOs ---
+
 
 class ChatQueryRequest(BaseModel):
     query: str = Field(..., min_length=1)
@@ -61,7 +66,9 @@ class QueryRewriteRequest(BaseModel):
     query: str = Field(..., min_length=1)
     conversation_id: UUID
 
+
 # --- Response DTOs ---
+
 
 class UserResponse(BaseModel):
     id: UUID
@@ -70,7 +77,7 @@ class UserResponse(BaseModel):
     role: UserRole
     email_verified: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -88,11 +95,13 @@ class SessionResponse(BaseModel):
     ip_address: str
     login_time: datetime
     last_activity: datetime
-    
+
     class Config:
         from_attributes = True
 
+
 # --- Phase 4 RAG Response DTOs ---
+
 
 class MessageResponse(BaseModel):
     id: UUID
@@ -101,7 +110,7 @@ class MessageResponse(BaseModel):
     content: str
     citations: Optional[List[Dict[str, Any]]] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -112,7 +121,7 @@ class ConversationResponse(BaseModel):
     user_id: UUID
     title: Optional[str]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

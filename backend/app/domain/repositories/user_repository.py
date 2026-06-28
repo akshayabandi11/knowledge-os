@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.models import User, UserSettings, RefreshToken
 from app.domain.repositories.base import IRepository
 
+
 class IUserRepository(IRepository[User], abc.ABC):
     @abc.abstractmethod
     def get_by_email(self, email: str) -> Optional[User]:

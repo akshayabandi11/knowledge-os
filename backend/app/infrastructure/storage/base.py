@@ -1,12 +1,13 @@
 import abc
 from typing import BinaryIO
 
+
 class IStorageProvider(abc.ABC):
     """
     Interface for file storage providers.
     Allows swapping between local disk storage and cloud storage (S3/Cloudflare R2).
     """
-    
+
     @abc.abstractmethod
     def upload_file(self, file_data: BinaryIO, storage_key: str) -> str:
         """

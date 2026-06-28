@@ -10,7 +10,10 @@ from sqlalchemy.orm import Session
 from app.domain.models import Document, DocumentChunk
 from app.domain.enums import DocStatus
 from app.domain.repositories.document_repository import IDocumentRepository
-from app.domain.repositories.collection_repository import ICollectionRepository  # Ensure name matches setup
+from app.domain.repositories.collection_repository import (
+    ICollectionRepository,
+)  # Ensure name matches setup
+
 # Wait! Let's check the collections repository import name from Phase 1 deps.py:
 # from app.domain.repositories.collection_repository import ICollectionRepository
 # Let's import:
@@ -20,15 +23,19 @@ from app.application.services.parsing_service import ParsingService
 from app.application.services.chunking_service import ChunkingService
 from app.application.services.embedding_service import EmbeddingService
 from app.infrastructure.db.session import SessionLocal
-from app.infrastructure.repositories.sqlalchemy_document import SQLAlchemyDocumentRepository
+from app.infrastructure.repositories.sqlalchemy_document import (
+    SQLAlchemyDocumentRepository,
+)
 from app.core.exceptions import ValidationError, EntityNotFoundError, DomainError
 from app.core.logging import logger
+
 
 class DocumentService:
     """
     Service responsible for managing document lifecycles.
     Co-ordinates metadata registration, storage, and asynchronous parsing pipelines.
     """
+
     def __init__(
         self,
         db: Session,
@@ -37,7 +44,7 @@ class DocumentService:
         storage_service: StorageService,
         parsing_service: ParsingService,
         chunking_service: ChunkingService,
-        embedding_service: EmbeddingService
+        embedding_service: EmbeddingService,
     ):
         self.db = db
         self.doc_repo = doc_repo
@@ -55,7 +62,7 @@ class DocumentService:
         file_type: str,
         file_size: int,
         file_data: BinaryIO,
-        background_tasks: BackgroundTasks
+        background_tasks: BackgroundTasks,
     ) -> Document:
         """
         Validates collection ownership, uploads the file to storage,
@@ -64,12 +71,14 @@ class DocumentService:
         # 1. Enforce Collection Tenant Isolation
         collection = self.collection_repo.get_by_id_and_user_id(collection_id, user_id)
         if not collection:
-            raise EntityNotFoundError(f"Collection {collection_id} not found or access denied.")
+            raise EntityNotFoundError(
+                f"Collection {collection_id} not found or access denied."
+            )
 
         # 2. File validation limits (e.g. max 25MB)
         if file_size > 25 * 1024 * 1024:
             raise ValidationError("File size exceeds maximum limit of 25MB.")
-            
+
         ext = file_name.split(".")[-1].lower()
         if ext not in ["txt", "pdf", "png", "jpg", "jpeg", "webp"]:
             raise ValidationError(f"File extension .{ext} is not supported.")
@@ -78,7 +87,7 @@ class DocumentService:
         file_data.seek(0)
         file_bytes = file_data.read()
         file_hash = hashlib.sha256(file_bytes).hexdigest()
-        
+
         # Reset stream pointer
         file_data.seek(0)
 
@@ -97,18 +106,16 @@ class DocumentService:
             storage_key=storage_key,
             status=DocStatus.processing,
             error_message=None,
-            
             # Initial metadata overrides (completed by background process)
             mime_type=file_type,
             file_hash=file_hash,
             page_count=None,
             chunk_count=None,
             processing_time_ms=None,
-            
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
-        
+
         registered = self.doc_repo.add(doc_entity)
         self.db.commit()
 
@@ -122,50 +129,48 @@ class DocumentService:
             document_id=document_id,
             storage_key=storage_key,
             file_name=file_name,
-            file_type=file_type
+            file_type=file_type,
         )
-        
+
         return registered
 
     def ingest_document_background(
-        self,
-        document_id: uuid.UUID,
-        storage_key: str,
-        file_name: str,
-        file_type: str
+        self, document_id: uuid.UUID, storage_key: str, file_name: str, file_type: str
     ) -> None:
         """
         Asynchronous pipeline worker: parses text, splits into chunks,
         calculates embeddings, indexes vectors in database, and updates document status with metadata.
         """
         logger.info(f"Starting async ingestion for document {document_id}")
-        
+
         # Open fresh isolated DB session for background thread
         bg_db = SessionLocal()
         bg_doc_repo = SQLAlchemyDocumentRepository(bg_db)
-        
+
         start_time_ms = int(time.time() * 1000)
-        
+
         try:
             # 1. Download file stream from storage
             file_stream = self.storage_service.download(storage_key)
-            
+
             # 2. Parse text content
-            parsed_text = self.parsing_service.parse_file(file_stream, file_name, file_type)
+            parsed_text = self.parsing_service.parse_file(
+                file_stream, file_name, file_type
+            )
             if not parsed_text.strip():
                 raise ValidationError("Extracted text content is empty.")
-                
+
             # 3. Segment by page markers (for citation tracking) if present
             chunk_entities: List[DocumentChunk] = []
             chunk_idx = 0
             page_count = 1
-            
+
             if "--- PAGE " in parsed_text:
                 # Enforce page-aware chunking for structured citation retrieval
                 parts = parsed_text.split("--- PAGE ")
                 # Update page count to total splits
                 page_count = len(parts) - 1 if len(parts) > 1 else 1
-                
+
                 for part in parts:
                     if not part.strip():
                         continue
@@ -180,7 +185,7 @@ class DocumentService:
                     else:
                         page_num = 1
                         page_text = part
-                        
+
                     # Split page text into chunks recursively
                     page_chunks = self.chunking_service.split_text(page_text)
                     for content in page_chunks:
@@ -191,8 +196,8 @@ class DocumentService:
                                 content=content,
                                 page_number=page_num,
                                 chunk_index=chunk_idx,
-                                embedding=[], # Settled after batch API call
-                                created_at=datetime.utcnow()
+                                embedding=[],  # Settled after batch API call
+                                created_at=datetime.utcnow(),
                             )
                         )
                         chunk_idx += 1
@@ -208,25 +213,25 @@ class DocumentService:
                             page_number=1,
                             chunk_index=chunk_idx,
                             embedding=[],
-                            created_at=datetime.utcnow()
+                            created_at=datetime.utcnow(),
                         )
                     )
                     chunk_idx += 1
-            
+
             # 4. Generate embeddings via AI Provider
             chunk_texts = [c.content for c in chunk_entities]
             embeddings = self.embedding_service.embed_chunks(chunk_texts)
-            
+
             # Assign embeddings back to chunks
             for chunk, emb in zip(chunk_entities, embeddings):
                 chunk.embedding = emb
-            
+
             # 5. Save chunks to Database
             bg_doc_repo.add_chunks(chunk_entities)
-            
+
             # Calculate duration
             duration_ms = int(time.time() * 1000) - start_time_ms
-            
+
             # 6. Update document status to completed
             db_doc = bg_doc_repo.get_by_id(document_id)
             if db_doc:
@@ -236,14 +241,16 @@ class DocumentService:
                 db_doc.processing_time_ms = duration_ms
                 db_doc.updated_at = datetime.utcnow()
                 bg_doc_repo.update(db_doc)
-                
+
             bg_db.commit()
-            logger.info(f"Ingestion successful for document {document_id} in {duration_ms}ms")
-            
+            logger.info(
+                f"Ingestion successful for document {document_id} in {duration_ms}ms"
+            )
+
         except Exception as e:
             bg_db.rollback()
             logger.error(f"Ingestion failed for document {document_id}: {str(e)}")
-            
+
             # Record failure state
             try:
                 db_doc = bg_doc_repo.get_by_id(document_id)
@@ -255,6 +262,8 @@ class DocumentService:
                     bg_doc_repo.update(db_doc)
                 bg_db.commit()
             except Exception as inner_e:
-                logger.error(f"Failed to save document error state for {document_id}: {str(inner_e)}")
+                logger.error(
+                    f"Failed to save document error state for {document_id}: {str(inner_e)}"
+                )
         finally:
             bg_db.close()

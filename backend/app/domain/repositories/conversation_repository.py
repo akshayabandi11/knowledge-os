@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.models import Conversation, Message
 from app.domain.repositories.base import IRepository
 
+
 class IConversationRepository(IRepository[Conversation], abc.ABC):
     @abc.abstractmethod
     def get_by_user_id(self, user_id: UUID) -> List[Conversation]:
@@ -21,6 +22,8 @@ class IConversationRepository(IRepository[Conversation], abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_by_id_and_user_id(self, conversation_id: UUID, user_id: UUID) -> Optional[Conversation]:
+    def get_by_id_and_user_id(
+        self, conversation_id: UUID, user_id: UUID
+    ) -> Optional[Conversation]:
         """Fetch conversation details checking ownership validation."""
         pass

@@ -5,6 +5,7 @@ from app.domain.models import AIUsageLog
 from app.domain.repositories.usage_log_repository import IUsageLogRepository
 from app.infrastructure.db.models import AIUsageLogModel
 
+
 class SQLAlchemyUsageLogRepository(IUsageLogRepository):
     def __init__(self, db: Session):
         self.db = db
@@ -16,7 +17,13 @@ class SQLAlchemyUsageLogRepository(IUsageLogRepository):
         return AIUsageLog.model_validate(db_log)
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[AIUsageLog]:
-        db_logs = self.db.query(AIUsageLogModel).order_by(AIUsageLogModel.timestamp.desc()).offset(skip).limit(limit).all()
+        db_logs = (
+            self.db.query(AIUsageLogModel)
+            .order_by(AIUsageLogModel.timestamp.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
         return [AIUsageLog.model_validate(l) for l in db_logs]
 
     def add(self, entity: AIUsageLog) -> AIUsageLog:
@@ -31,7 +38,7 @@ class SQLAlchemyUsageLogRepository(IUsageLogRepository):
             estimated_cost=entity.estimated_cost,
             response_time_ms=entity.response_time_ms,
             status=entity.status,
-            timestamp=entity.timestamp
+            timestamp=entity.timestamp,
         )
         self.db.add(db_log)
         self.db.flush()
@@ -44,7 +51,11 @@ class SQLAlchemyUsageLogRepository(IUsageLogRepository):
         raise NotImplementedError("AI usage logs are write-only and cannot be deleted.")
 
     def get_by_user_id(self, user_id: UUID, limit: int = 100) -> List[AIUsageLog]:
-        db_logs = self.db.query(AIUsageLogModel).filter(
-            AIUsageLogModel.user_id == user_id
-        ).order_by(AIUsageLogModel.timestamp.desc()).limit(limit).all()
+        db_logs = (
+            self.db.query(AIUsageLogModel)
+            .filter(AIUsageLogModel.user_id == user_id)
+            .order_by(AIUsageLogModel.timestamp.desc())
+            .limit(limit)
+            .all()
+        )
         return [AIUsageLog.model_validate(l) for l in db_logs]

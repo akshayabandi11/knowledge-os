@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.models import Document, DocumentChunk, Summary, Flashcard, Quiz
 from app.domain.repositories.base import IRepository
 
+
 class IDocumentRepository(IRepository[Document], abc.ABC):
     @abc.abstractmethod
     def get_by_collection_id(self, collection_id: UUID) -> List[Document]:
@@ -11,7 +12,9 @@ class IDocumentRepository(IRepository[Document], abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_by_id_and_user_id(self, document_id: UUID, user_id: UUID) -> Optional[Document]:
+    def get_by_id_and_user_id(
+        self, document_id: UUID, user_id: UUID
+    ) -> Optional[Document]:
         """Fetch a specific document verifying user ownership mapping."""
         pass
 

@@ -5,10 +5,12 @@ from app.domain.models import Session
 from app.domain.repositories.session_repository import ISessionRepository
 from app.infrastructure.db.models import SessionModel
 
+
 class SQLAlchemySessionRepository(ISessionRepository):
     """
     SQLAlchemy implementation of the Session Repository.
     """
+
     def __init__(self, db: SqlSession):
         self.db = db
 
@@ -34,14 +36,16 @@ class SQLAlchemySessionRepository(ISessionRepository):
             last_activity=entity.last_activity,
             token_family=entity.token_family,
             revoked=entity.revoked,
-            created_at=entity.created_at
+            created_at=entity.created_at,
         )
         self.db.add(db_sess)
         self.db.flush()
         return Session.model_validate(db_sess)
 
     def update(self, entity: Session) -> Session:
-        db_sess = self.db.query(SessionModel).filter(SessionModel.id == entity.id).first()
+        db_sess = (
+            self.db.query(SessionModel).filter(SessionModel.id == entity.id).first()
+        )
         if not db_sess:
             raise ValueError(f"Session {entity.id} not found")
         db_sess.last_activity = entity.last_activity
@@ -56,16 +60,20 @@ class SQLAlchemySessionRepository(ISessionRepository):
             self.db.flush()
 
     def get_active_by_user_id(self, user_id: UUID) -> List[Session]:
-        db_sess = self.db.query(SessionModel).filter(
-            SessionModel.user_id == user_id,
-            SessionModel.revoked == False
-        ).order_by(SessionModel.last_activity.desc()).all()
+        db_sess = (
+            self.db.query(SessionModel)
+            .filter(SessionModel.user_id == user_id, SessionModel.revoked == False)
+            .order_by(SessionModel.last_activity.desc())
+            .all()
+        )
         return [Session.model_validate(s) for s in db_sess]
 
     def get_by_token_family(self, token_family: UUID) -> Optional[Session]:
-        db_sess = self.db.query(SessionModel).filter(
-            SessionModel.token_family == token_family
-        ).first()
+        db_sess = (
+            self.db.query(SessionModel)
+            .filter(SessionModel.token_family == token_family)
+            .first()
+        )
         if not db_sess:
             return None
         return Session.model_validate(db_sess)
@@ -78,7 +86,6 @@ class SQLAlchemySessionRepository(ISessionRepository):
 
     def revoke_all_by_user_id(self, user_id: UUID) -> None:
         self.db.query(SessionModel).filter(
-            SessionModel.user_id == user_id,
-            SessionModel.revoked == False
+            SessionModel.user_id == user_id, SessionModel.revoked == False
         ).update({SessionModel.revoked: True}, synchronize_session=False)
         self.db.flush()

@@ -2,16 +2,20 @@ import os
 from typing import Dict, Any
 from app.core.exceptions import PromptBuildError
 
+
 class PromptBuilderService:
     """
     Service responsible for loading external prompt templates
     and dynamically formatting them with context placeholders.
     """
+
     def __init__(self):
         # Resolve prompts path relative to project app root
         self.prompts_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-            "prompts"
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            "prompts",
         )
 
     def _load_template(self, template_name: str) -> str:
@@ -30,13 +34,12 @@ class PromptBuilderService:
         Loads prompt template and replaces custom placeholders matching {{key}} keys.
         """
         template = self._load_template(template_name)
-        
+
         try:
             formatted = template
             for key, value in placeholders.items():
-                target = f"{{{{{key}}}}}" # Format matching {{key}}
+                target = f"{{{{{key}}}}}"  # Format matching {{key}}
                 formatted = formatted.replace(target, str(value))
             return formatted
         except Exception as e:
             raise PromptBuildError(f"Failed formatting prompt placeholders: {str(e)}")
-

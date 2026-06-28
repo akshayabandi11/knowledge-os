@@ -4,11 +4,13 @@ from typing import Optional
 from app.domain.models import AuditLog
 from app.domain.repositories.audit_log_repository import IAuditLogRepository
 
+
 class AuditService:
     """
     Service responsible for writing write-only audit logs.
     Captures user mutations and security events.
     """
+
     def __init__(self, audit_repo: IAuditLogRepository):
         self.audit_repo = audit_repo
 
@@ -18,7 +20,7 @@ class AuditService:
         action: str,
         ip_address: str,
         device: str,
-        status: str
+        status: str,
     ) -> AuditLog:
         """
         Persists a security audit log record.
@@ -30,6 +32,6 @@ class AuditService:
             action=action,
             ip_address=ip_address,
             device=device,
-            status=status
+            status=status,
         )
         return self.audit_repo.add(log_entity)

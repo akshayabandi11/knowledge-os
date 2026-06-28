@@ -2,12 +2,13 @@ import re
 import bcrypt
 from app.core.exceptions import WeakPassword
 
+
 class PasswordService:
     """
     Service responsible for enforcing password strength policies,
     hashing, and verifying passwords using bcrypt.
     """
-    
+
     def validate_password_strength(self, password: str) -> None:
         """
         Enforces secure password criteria:
@@ -19,16 +20,16 @@ class PasswordService:
         """
         if len(password) < 8:
             raise WeakPassword("Password must be at least 8 characters long.")
-            
+
         if not re.search(r"[A-Z]", password):
             raise WeakPassword("Password must contain at least one uppercase letter.")
-            
+
         if not re.search(r"[a-z]", password):
             raise WeakPassword("Password must contain at least one lowercase letter.")
-            
+
         if not re.search(r"\d", password):
             raise WeakPassword("Password must contain at least one numeric digit.")
-            
+
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
             raise WeakPassword("Password must contain at least one special character.")
 
@@ -46,8 +47,7 @@ class PasswordService:
         """
         try:
             return bcrypt.checkpw(
-                plain_password.encode("utf-8"), 
-                hashed_password.encode("utf-8")
+                plain_password.encode("utf-8"), hashed_password.encode("utf-8")
             )
         except Exception:
             return False
