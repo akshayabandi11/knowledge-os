@@ -47,4 +47,6 @@ class LocalStorageProvider(IStorageProvider):
             try:
                 os.remove(file_path)
             except Exception as e:
-                raise StorageDeletionFailed(f"Local storage deletion failed: {str(e)}") from e
+                raise StorageDeletionFailed(
+                    f"Local storage deletion failed: {str(e)}"
+                ) from e

@@ -88,6 +88,6 @@ class SQLAlchemySessionRepository(ISessionRepository):
 
     def revoke_all_by_user_id(self, user_id: UUID) -> None:
         self.db.query(SessionModel).filter(
-           SessionModel.user_id == user_id, SessionModel.revoked.is_(False)
+            SessionModel.user_id == user_id, SessionModel.revoked.is_(False)
         ).update({SessionModel.revoked: True}, synchronize_session=False)
         self.db.flush()

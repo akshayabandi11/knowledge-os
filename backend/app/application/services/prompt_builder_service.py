@@ -43,4 +43,6 @@ class PromptBuilderService:
                 formatted = formatted.replace(target, str(value))
             return formatted
         except Exception as e:
-            raise PromptBuildError(f"Failed formatting prompt placeholders: {str(e)}") from e
+            raise PromptBuildError(
+                f"Failed formatting prompt placeholders: {str(e)}"
+            ) from e

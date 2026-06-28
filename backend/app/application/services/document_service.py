@@ -222,7 +222,7 @@ class DocumentService:
             embeddings = self.embedding_service.embed_chunks(chunk_texts)
 
             # Assign embeddings back to chunks
-            for chunk, emb in zip(chunk_entities, embeddings,strict=False):
+            for chunk, emb in zip(chunk_entities, embeddings, strict=False):
                 chunk.embedding = emb
 
             # 5. Save chunks to Database

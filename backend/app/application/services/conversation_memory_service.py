@@ -39,7 +39,7 @@ class ConversationMemoryService:
         except Exception as e:
             raise ConversationError(
                 f"Failed to record message to history: {str(e)}"
-    ) from e
+            ) from e
 
     def get_history_as_string(
         self, conversation_id: uuid.UUID, max_messages: int = 10

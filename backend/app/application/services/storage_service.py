@@ -19,7 +19,7 @@ class StorageService:
         except Exception as e:
             if not isinstance(e, StorageError):
                 raise StorageError(f"Unexpected upload failure: {str(e)}") from e
-            raise 
+            raise
 
     def download(self, storage_key: str) -> BinaryIO:
         try:
@@ -27,7 +27,7 @@ class StorageService:
         except Exception as e:
             if not isinstance(e, StorageError):
                 raise StorageError(f"Unexpected retrieval failure: {str(e)}") from e
-            raise 
+            raise
 
     def delete(self, storage_key: str) -> None:
         try:
@@ -35,4 +35,4 @@ class StorageService:
         except Exception as e:
             if not isinstance(e, StorageError):
                 raise StorageError(f"Unexpected deletion failure: {str(e)}") from e
-            raise 
+            raise

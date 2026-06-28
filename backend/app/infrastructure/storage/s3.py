@@ -51,10 +51,14 @@ class S3StorageProvider(IStorageProvider):
                 raise FileNotFoundError(
                     f"File not found in cloud storage: {storage_key}"
                 ) from e
-            raise StorageDeletionFailed(f"Cloud storage retrieval failed: {str(e)}") from e
+            raise StorageDeletionFailed(
+                f"Cloud storage retrieval failed: {str(e)}"
+            ) from e
 
     def delete_file(self, storage_key: str) -> None:
         try:
             self.s3.delete_object(Bucket=self.bucket_name, Key=storage_key)
         except ClientError as e:
-            raise StorageDeletionFailed(f"Cloud storage deletion failed: {str(e)}") from e
+            raise StorageDeletionFailed(
+                f"Cloud storage deletion failed: {str(e)}"
+            ) from e

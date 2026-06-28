@@ -73,4 +73,4 @@ class RetrievalService:
         except Exception as e:
             if not isinstance(e, RetrievalError):
                 raise RetrievalError(f"RAG Retrieval failed: {str(e)}") from e
-            raise 
+            raise

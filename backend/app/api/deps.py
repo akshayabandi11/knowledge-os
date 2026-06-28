@@ -304,7 +304,6 @@ def get_chat_service(
 # --- Authentication & Authorization Request Filters ---
 
 
-
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     user_repo: IUserRepository = Depends(get_user_repository),
