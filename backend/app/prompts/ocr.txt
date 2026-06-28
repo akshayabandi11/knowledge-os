@@ -1,0 +1,1 @@
+Perform OCR on this image. Extract all text content accurately. Maintain line formatting if possible. Output ONLY the extracted text. Do not add any prefaces, markdown boxes, or commentary.

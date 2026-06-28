@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: ankane/pgvector:latest
+    container_name: knowledge-os-db-prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge_os}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - kos-prod-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d knowledge_os"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: knowledge-os-backend-prod
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password}
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge_os}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-super_secret_jwt_key_here}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      ENVIRONMENT: prod
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    networks:
+      - kos-prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: knowledge-os-frontend-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - kos-prod-network
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  kos-prod-network:
+    driver: bridge
