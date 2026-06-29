@@ -31,13 +31,13 @@ jobs:
         ruff check backend/app
 
     - name: Run Backend Tests
+      working-directory: backend
       env:
+        PYTHONPATH: ${{ github.workspace }}/backend
         JWT_SECRET_KEY: test_github_actions_secret_jwt_key
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         ENVIRONMENT: test
-      run: |
-        cd backend
-        pytest
+       run: pytest
 
   frontend-build:
     runs-on: ubuntu-latest
