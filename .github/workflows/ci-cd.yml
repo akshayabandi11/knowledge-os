@@ -1,4 +1,4 @@
-```yaml
+
 name: KnowledgeOS CI/CD Pipeline
 
 on:
@@ -103,4 +103,4 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: false
-```
+
