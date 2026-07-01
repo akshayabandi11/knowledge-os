@@ -142,8 +142,8 @@ class AuthService:
                 user.id, "ACCOUNT_LOCKED", ip_address, user_agent_str, "BLOCKED"
             )
             locked_duration_min = int(
-               (user.locked_until - datetime.now(timezone.utc)).total_seconds() / 60
-)
+                (user.locked_until - datetime.now(timezone.utc)).total_seconds() / 60
+            )
             raise AccountLocked(
                 f"Account locked due to consecutive failures. Try again in {locked_duration_min} minutes."
             )
