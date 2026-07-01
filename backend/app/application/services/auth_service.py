@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
 from sqlalchemy.orm import Session as SqlSession
@@ -137,13 +137,13 @@ class AuthService:
             raise InvalidCredentials("Invalid email or password.")
 
         # Check Account Lockout State
-        if user.locked_until and user.locked_until > datetime.utcnow():
+        if user.locked_until and user.locked_until > datetime.now(timezone.utc):
             self.audit_service.log_action(
                 user.id, "ACCOUNT_LOCKED", ip_address, user_agent_str, "BLOCKED"
             )
             locked_duration_min = int(
-                (user.locked_until - datetime.utcnow()).total_seconds() / 60
-            )
+               (user.locked_until - datetime.now(timezone.utc)).total_seconds() / 60
+)
             raise AccountLocked(
                 f"Account locked due to consecutive failures. Try again in {locked_duration_min} minutes."
             )

@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from unittest.mock import MagicMock
 
@@ -17,6 +18,7 @@ from app.core.exceptions import (
     WeakPassword,
 )
 from app.domain.enums import UserRole
+from app.domain.models import User
 from app.infrastructure.repositories.sqlalchemy_session import (
     SQLAlchemySessionRepository,
 )
@@ -94,6 +96,21 @@ def test_session_lifecycle(db_session):
     service = SessionService(sess_repo)
 
     user_id = uuid.uuid4()
+    user_repo = SQLAlchemyUserRepository(db_session)
+
+    user_repo.add(
+        User(
+            id=user_id,
+            email="session@example.com",
+            hashed_password="password",
+            full_name="Session User",
+            role=UserRole.USER,
+            email_verified=False,
+            failed_login_attempts=0,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+    )
     token_family = uuid.uuid4()
 
     # Create Session

@@ -22,6 +22,8 @@ def test_user_repository_crud(db_session):
         hashed_password="hashedpassword123",
         full_name="John Doe",
         role=UserRole.USER,
+        email_verified=False,
+        failed_login_attempts=0,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
@@ -60,6 +62,8 @@ def test_user_settings_configuration(db_session):
         email="settings@example.com",
         hashed_password="password",
         role=UserRole.USER,
+        email_verified=False,
+        failed_login_attempts=0,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
@@ -98,6 +102,8 @@ def test_collection_repository(db_session):
         email="coll@example.com",
         hashed_password="password",
         role=UserRole.USER,
+        email_verified=False,
+        failed_login_attempts=0,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
@@ -137,6 +143,8 @@ def test_audit_logs_repository(db_session):
         email="audit@example.com",
         hashed_password="password",
         role=UserRole.USER,
+        email_verified=False,
+        failed_login_attempts=0,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
     )
